@@ -6,9 +6,10 @@ from sklearn.utils.validation import check_is_fitted, check_X_y
 
 
 class MinimumDistanceClassifier(BaseEstimator, ClassifierMixin):
-    def __init__(self):
+    def __init__(self,metric = "euclidean"):
         self.classes_ = None
         self.__means = None
+        self.metric = metric
 
     def fit(self, X, y):
         X,y = check_X_y(X, y)
@@ -19,13 +20,13 @@ class MinimumDistanceClassifier(BaseEstimator, ClassifierMixin):
         for i in range(len(self.classes_)):
             temp = np.where(y == self.classes_[i])[0]
 
-            self.__means[i, :] = np.mean(X.iloc[temp, :], axis=0)
+            self.__means[i, :] = np.mean(X[temp], axis=0)
 
         return self
 
     def predict(self, X):
         check_is_fitted(self)
-        temp = np.argmin(cdist(X, self.__means), axis=1)
+        temp = np.argmin(cdist(X, self.__means, metric = self.metric), axis=1)
         y_pred = np.array([self.classes_[i] for i in temp])
 
         return y_pred
@@ -34,8 +35,3 @@ class MinimumDistanceClassifier(BaseEstimator, ClassifierMixin):
     def class_means(self):
         return self.__means
 
-
-
-
-if __name__ == "__main__":
-    ahah = MDC()
